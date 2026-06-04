@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>116學年度高點後中醫【台北班】個人化互動課表</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts Inter & Noto Sans TC -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+TC:wght@300;400;500;700;900&family=Caveat:wght@700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Sans TC', sans-serif;
+            background-color: #fcfbf7;
+        }
+        
+        /* Grid Paper Pattern inspired by 範例.jpg */
+        .grid-paper {
+            background-color: #fbfbfa;
+            background-image: 
+                linear-gradient(#e6edf2 1px, transparent 1px),
+                linear-gradient(90deg, #e6edf2 1px, transparent 1px);
+            background-size: 16px 16px;
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            .print-card {
+                box-shadow: none !important;
+                border: 1px solid #cbd5e1 !important;
+            }
+        }
+        
+        /* Caveat font for cute handwritten touch */
+        .handwritten {
+            font-family: 'Caveat', 'Noto Sans TC', cursive;
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <!-- Navigation / Header -->
+    <header class="bg-gradient-to-r from-amber-600 via-orange-700 to-amber-900 text-white shadow-md no-print">
+        <div class="max-w-7xl mx-auto px-4 py-5 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="bg-white/10 p-2.5 rounded-xl backdrop-blur-sm">
+                    <i class="fa-solid fa-book-open text-2xl text-amber-200"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl md:text-2xl font-black tracking-wide">116學年高點後中醫【台北班】個人課表</h1>
+                    <p class="text-xs md:text-sm text-amber-100/80 font-light mt-0.5">自主規律複習排程管理系統 • 依正課與雲端上片自動排定當日或隔日黃金複習</p>
+                </div>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+                <span class="bg-amber-500/30 text-amber-100 text-xs px-2.5 py-1 rounded-full border border-amber-400/30">
+                    <i class="fa-solid fa-dumbbell mr-1"></i> 規律運動內嵌
+                </span>
+                <span class="bg-orange-500/30 text-orange-200 text-xs px-2.5 py-1 rounded-full border border-orange-400/30">
+                    <i class="fa-solid fa-rotate mr-1"></i> 排除非選報科目
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 w-full">
+
+        <!-- Course Selection Legend -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-5 mb-6 no-print">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 pb-4 border-b border-slate-100">
+                <div>
+                    <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+                        已選報與複習科目狀態 (點擊可切換顯示，複習區塊與任務清單會連動重組)
+                    </h2>
+                    <p class="text-xs text-slate-500 mt-1">系統將根據您勾選的「正課」上課日期（包含實體課與雲端佔用時間），全自動於當天或隔天為您安插相對應的複習時段！</p>
+                </div>
+                <div class="flex gap-2 text-xs">
+                    <button onclick="toggleAllCourses(true)" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg transition font-medium">全部顯示</button>
+                    <button onclick="toggleAllCourses(false)" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg transition font-medium">全部隱藏</button>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3" id="course-badges-container">
+                <!-- Badges will be generated dynamically -->
+            </div>
+        </div>
+
+        <!-- Weekly Navigation & Controls -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-5 mb-6 no-print">
+            <div class="flex flex-col lg:flex-row justify-between items-stretch lg:items-center gap-4">
+                <!-- Navigation Buttons -->
+                <div class="flex items-center justify-between sm:justify-start gap-3">
+                    <button onclick="prevWeek()" class="p-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 active:bg-slate-100 text-slate-600 transition flex items-center gap-1.5 text-sm font-medium">
+                        <i class="fa-solid fa-chevron-left"></i> 上一週
+                    </button>
+                    
+                    <div class="flex flex-col items-center px-4">
+                        <span class="text-xs text-slate-400 font-semibold" id="week-number-display">WEEK 1</span>
+                        <select id="week-select" onchange="selectWeek(this.value)" class="text-base font-bold text-slate-800 bg-transparent border-b-2 border-amber-500 focus:outline-none cursor-pointer py-0.5">
+                            <!-- Options will be dynamically filled -->
+                        </select>
+                    </div>
+
+                    <button onclick="nextWeek()" class="p-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 active:bg-slate-100 text-slate-600 transition flex items-center gap-1.5 text-sm font-medium">
+                        下一週 <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
+
+                <!-- Date Range Display -->
+                <div class="bg-amber-50/40 rounded-xl px-4 py-2.5 flex items-center justify-between sm:justify-center gap-4 border border-amber-100">
+                    <div class="text-center sm:text-left">
+                        <span class="text-xs text-amber-600/80 block font-semibold">當週日期區間</span>
+                        <span class="text-sm font-bold text-slate-700" id="date-range-display">-</span>
+                    </div>
+                    <div class="h-8 w-px bg-amber-200 hidden sm:block"></div>
+                    <button onclick="jumpToCurrentWeek()" class="text-xs font-bold text-amber-700 hover:text-amber-800 hover:bg-amber-100/50 px-3 py-2 rounded-lg transition flex items-center gap-1">
+                        <i class="fa-solid fa-clock-rotate-left"></i> 回到本週
+                    </button>
+                </div>
+
+                <!-- Helper Buttons -->
+                <div class="flex gap-2">
+                    <button onclick="window.print()" class="flex-1 lg:flex-none px-4 py-2.5 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-sm font-medium transition flex items-center justify-center gap-2 shadow-sm">
+                        <i class="fa-solid fa-print"></i> 列印 / 儲存 PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Weekly Grid Schedule -->
+        <div class="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden print-card mb-6">
+            <!-- Grid Header Info (For Print/Screenshot) -->
+            <div class="p-6 bg-amber-50/20 border-b border-slate-200/80 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h3 class="text-lg font-extrabold text-slate-800 flex items-center gap-2">
+                        <i class="fa-solid fa-pencil text-amber-600"></i>
+                        <span id="grid-title">116年高點後中醫【台北班】當週課表</span>
+                    </h3>
+                    <p class="text-xs text-slate-500 mt-1" id="grid-subtitle">當前顯示：第 1 週</p>
+                </div>
+                <div class="text-xs text-slate-400 italic hidden print:block">
+                    手帳風格規律複習與正課對照表 (經校對修正)
+                </div>
+            </div>
+
+            <!-- Timetable Grid -->
+            <div class="overflow-x-auto grid-paper p-4">
+                <table class="w-full min-w-[850px] border-collapse table-fixed">
+                    <thead>
+                        <tr class="text-slate-600 border-b-2 border-slate-300">
+                            <th class="w-24 p-3 text-xs font-bold uppercase tracking-wider text-center border-r border-slate-200 bg-white/80">時段 / 星期</th>
+                            <th class="p-3 text-xs font-bold text-center border-r border-slate-200 w-[13.5%] bg-white/80"><div class="font-black text-slate-800">星期一</div><div class="text-[10px] text-slate-400" id="date-mon">-</div></th>
+                            <th class="p-3 text-xs font-bold text-center border-r border-slate-200 w-[13.5%] bg-amber-50/80"><div class="font-black text-amber-900">星期二</div><div class="text-[10px] text-amber-700/60" id="date-tue">-</div></th>
+                            <th class="p-3 text-xs font-bold text-center border-r border-slate-200 w-[13.5%] bg-emerald-50/80"><div class="font-black text-emerald-900">星期三</div><div class="text-[10px] text-emerald-700/60" id="date-wed">-</div></th>
+                            <th class="p-3 text-xs font-bold text-center border-r border-slate-200 w-[13.5%] bg-cyan-50/80"><div class="font-black text-cyan-900">星期四</div><div class="text-[10px] text-cyan-700/60" id="date-thu">-</div></th>
+                            <th class="p-3 text-xs font-bold text-center border-r border-slate-200 w-[13.5%] bg-white/80"><div class="font-black text-slate-800">星期五</div><div class="text-[10px] text-slate-400" id="date-fri">-</div></th>
+                            <th class="p-3 text-xs font-bold text-center border-r border-slate-200 w-[13.5%] bg-white/80"><div class="font-black text-slate-800">星期六</div><div class="text-[10px] text-slate-400" id="date-sat">-</div></th>
+                            <th class="p-3 text-xs font-bold text-center w-[13.5%] bg-red-50/80"><div class="font-black text-red-900">星期日</div><div class="text-[10px] text-red-700/60" id="date-sun">-</div></th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-200/60 text-sm">
+                        <!-- Morning Slot -->
+                        <tr class="hover:bg-slate-50/40 transition">
+                            <td class="p-3 text-center border-r border-slate-200 bg-white/90 font-medium">
+                                <div class="text-xs font-bold text-slate-600">🌅 早上</div>
+                                <div class="text-[10px] text-slate-400 mt-1">09:00 - 12:00<br>(或依正課公告)</div>
+                            </td>
+                            <td class="p-2.5 border-r border-slate-200 align-top" id="cell-mon-morning"></td>
+                            <td class="p-2.5 border-r border-slate-200 align-top bg-amber-50/20" id="cell-tue-morning"></td>
+                            <td class="p-2.5 border-r border-slate-200 align-top bg-emerald-50/10" id="cell-wed-morning"></td>
+                            <td class="p-2.5 border-r border-slate-200 align-top bg-cyan-50/10" id="cell-thu-morning"></td>
+                            <td class="p-2.5 border-r border-slate-200 align-top" id="cell-fri-morning"></td>
+                            <td class="p-2.5 border-r border-slate-200 align-top" id="cell-sat-morning"></td>
+                            <td class="p-2.5 align-top bg-red-50/10" id="cell-sun-morning"></td>
+                        </tr>
+                        <!-- Afternoon Slot -->
+                        <tr class="hover:bg-slate-50/40 transition">
+                            <td class="p-3 text-center border-r border-slate-200 bg-white/90 font-medium">
+                                <div class="text-xs font-bold text-slate-600">☀️ 下午</div>
+                                <div class="text-[10px] text-slate-400 mt-1">13:30 - 16:30<br>(或依正課公告)</div>
+                            </td>
+                            <td class="p-2.5 border-r border-slate-200 align-top" id="cell-mon-afternoon"></td>
+                            <td class="p-2.5 border-r border-slate-200 align-top bg-amber-50/20" id="cell-tue-afternoon"></td>
+                            <td class="p-2.5 border-r border-slate-200 align-top bg-emerald-50/10" id="cell-wed-afternoon"></td>
+                            <td class="p-2.5 border-r border-slate-200 align-top bg-cyan-50/10" id="cell-thu-afternoon"></td>
+                            <td class="p-2.5 border-r border-slate-200 align-top" id="cell-fri-afternoon"></td>
+                            <td class="p-2.5 border-r border-slate-200 align-top" id="cell-sat-afternoon"></td>
+                            <td class="p-2.5 align-top bg-red-50/10" id="cell-sun-afternoon"></td>
+                        </tr>
+                        <!-- Evening Slot -->
+                        <tr class="hover:bg-slate-50/40 transition">
+                            <td class="p-3 text-center border-r border-slate-200 bg-white/90 font-medium">
+                                <div class="text-xs font-bold text-slate-600">🌙 晚上</div>
+                                <div class="text-[10px] text-slate-400 mt-1">18:30 - 21:30<br>(或依正課公告)</div>
+                            </td>
+                            <td class="p-2.5 border-r border-slate-200 align-top" id="cell-mon-evening"></td>
+                            <td class="p-2.5 border-r border-slate-200 align-top bg-amber-50/20" id="cell-tue-evening"></td>
+                            <td class="p-2.5 border-r border-slate-200 align-top bg-emerald-50/10" id="cell-wed-evening"></td>
+                            <td class="p-2.5 border-r border-slate-200 align-top bg-cyan-50/10" id="cell-thu-evening"></td>
+                            <td class="p-2.5 border-r border-slate-200 align-top" id="cell-fri-evening"></td>
+                            <td class="p-2.5 border-r border-slate-200 align-top" id="cell-sat-evening"></td>
+                            <td class="p-2.5 align-top bg-red-50/10" id="cell-sun-evening"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Weekly Daily Study Checklist -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 no-print">
+            <!-- Left 2 Cols: Detailed Course Description (Daily planner) -->
+            <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4">
+                    <div>
+                        <h4 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-square-check text-emerald-500"></i>
+                            本週「自主任務」清單 (依每日分開)
+                        </h4>
+                        <p class="text-xs text-slate-500 mt-0.5">依照當天/隔天黃金複習定律排定，已完全過濾「正課」內容，專注執行複習與運動！</p>
+                    </div>
+                    <span class="text-[10px] bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full border border-emerald-200 font-bold shrink-0">
+                        <i class="fa-solid fa-calendar-day mr-1"></i> 按日排列
+                    </span>
+                </div>
+                <div class="space-y-4" id="checklist-daily-container">
+                    <!-- Daily checklists will go here -->
+                </div>
+            </div>
+
+            <!-- Right 1 Col: Handdrawn Tips & Visual Legend -->
+            <div class="bg-gradient-to-br from-amber-50/30 to-amber-100/30 rounded-2xl p-6 border border-amber-200/60">
+                <h4 class="text-sm font-bold text-amber-900 mb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-marker text-amber-600"></i>
+                    自主規律複習說明 (黃金學習律)
+                </h4>
+                <ul class="space-y-3 text-xs text-slate-600">
+                    <li class="flex gap-2">
+                        <span class="text-red-500 font-bold">●</span>
+                        <span><strong>當天或隔天複習</strong>：根據艾賓浩斯遺忘曲線，上完正課的 24 小時內複習效率最高。本系統採用此演算法，在您上完生物、化學、英文、國文當天或隔日即自動指派對應複習。</span>
+                    </li>
+                    <li class="flex gap-2">
+                        <span class="text-orange-500 font-bold">●</span>
+                        <span><strong>雲端與正課佔位</strong>：即使是雲端上架課程（如普化正課每週三、有機每週四），在課表上也佔用了下午完整的獨立時段，利於您預留時間觀看！</span>
+                    </li>
+                    <li class="flex gap-2">
+                        <span class="text-emerald-500 font-bold">●</span>
+                        <span><strong>有機未開課不排複習</strong>：6/25 有機化學首播前（第1、2週），課表絕不會出現任何有機化學複習，避免進度不合常理。</span>
+                    </li>
+                    <li class="flex gap-2">
+                        <span class="text-indigo-500 font-bold">●</span>
+                        <span><strong>國文正課 (每週六)</strong>：固定於週六早上實體授課，並於週六下午/晚上或週日自動觸發國文複習。</span>
+                    </li>
+                    <li class="flex gap-2">
+                        <span class="text-rose-500 font-bold">●</span>
+                        <span><strong>週間運動時段 (每週三晚)</strong>：固定於每週三晚上 (18:30-20:30) 排入運動，維持考研期間的體能與專注力。</span>
+                    </li>
+                </ul>
+
+                <div class="mt-6 pt-5 border-t border-amber-200/80 flex items-center justify-between">
+                    <div>
+                        <span class="text-xs text-amber-800/60 block font-semibold">複習排程依據</span>
+                        <span class="text-xs font-bold text-slate-700">116年手繪手記課表規律</span>
+                    </div>
+                    <span class="text-[10px] bg-red-100 text-red-800 px-2 py-1 rounded font-black border border-red-200">動態配對中</span>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 text-xs py-6 mt-12 border-t border-slate-800 no-print">
+        <div class="max-w-7xl mx-auto px-4 text-center space-y-2">
+            <p>116年高點後中醫【台北班】 個人專屬自主複習與任務管理系統</p>
+            <p class="text-slate-600">本系統專為台北班高階考生量身規劃，所有自主複習與運動皆已排除實體與雲端正課，提供高規律性與執行性。</p>
+        </div>
+    </footer>
+
+    <script>
+        // ----------------------------------------------------
+        // Course database defining types, styling, and status
+        // ----------------------------------------------------
+        const courseConfig = {
+            'bio31': { name: '生物 31', teacher: '張劍鴻', color: 'bg-indigo-100/95 text-indigo-950 border-indigo-200 hover:bg-indigo-200/90', active: true, desc: '實體正課' },
+            'chinese_extra': { name: '國文(自選)', teacher: '自選名師', color: 'bg-emerald-200/95 text-emerald-950 border-emerald-300 hover:bg-emerald-300/90', active: true, desc: '加強/自選' },
+            'vocab01': { name: '字彙 01', teacher: '馬芸', color: 'bg-amber-100/95 text-amber-950 border-amber-200 hover:bg-amber-200/90', active: true, desc: '實體加強' },
+            'english01': { name: '英文 01', teacher: '馬芸', color: 'bg-amber-100/95 text-amber-950 border-amber-200 hover:bg-amber-200/90', active: true, desc: '實體正課' },
+            'chinese01': { name: '國文 01', teacher: '楊仲達', color: 'bg-emerald-50/95 text-emerald-950 border-emerald-200 hover:bg-emerald-100/90', active: true, desc: '實體正課' },
+            'chem_prep': { name: '普化先修', teacher: '梁傑', color: 'bg-emerald-100/95 text-emerald-950 border-emerald-200 hover:bg-emerald-200/90', active: true, desc: '雲端/線上' },
+            'chem_main': { name: '普通化學', teacher: '梁傑', color: 'bg-sky-100/95 text-sky-950 border-sky-200 hover:bg-sky-200/90', active: true, desc: '雲端/線上' },
+            'chem_spec': { name: '普化精修', teacher: '劉軍', color: 'bg-purple-100/95 text-purple-950 border-purple-200 hover:bg-purple-200/90', active: true, desc: '實體精修' },
+            'org_prep': { name: '有機先修', teacher: '梁傑', color: 'bg-teal-100/95 text-teal-950 border-teal-200 hover:bg-teal-200/90', active: true, desc: '雲端/線上' },
+            'org_main': { name: '有機化學', teacher: '梁傑', color: 'bg-emerald-100/95 text-emerald-950 border-emerald-200 hover:bg-emerald-200/90', active: true, desc: '雲端/線上' },
+            'org_add': { name: '有機加強', teacher: '梁傑', color: 'bg-rose-100/95 text-rose-950 border-rose-200 hover:bg-rose-200/90', active: true, desc: '雲端加強' },
+            
+            // Styled pastel bubble palettes for Revision & Workout
+            'bio_rev': { name: '生物複習', teacher: '自主', color: 'bg-pink-100/80 text-pink-950 border-pink-200 hover:bg-pink-200/80', active: true, desc: '自主複習' },
+            'eng_rev': { name: '英文複習', teacher: '自主', color: 'bg-yellow-100/80 text-yellow-950 border-yellow-200 hover:bg-yellow-200/80', active: true, desc: '自主複習' },
+            'chi_rev': { name: '國文複習', teacher: '自主', color: 'bg-emerald-100/70 text-emerald-950 border-emerald-200 hover:bg-emerald-200/70', active: true, desc: '自主複習' },
+            'chem_rev': { name: '普化複習', teacher: '自主', color: 'bg-sky-100/70 text-sky-950 border-sky-200 hover:bg-sky-200/70', active: true, desc: '自主複習' },
+            'org_rev': { name: '有機複習', teacher: '自主', color: 'bg-orange-100/70 text-orange-950 border-orange-200 hover:bg-orange-200/70', active: true, desc: '自主複習' },
+            'workout': { name: '運動時間', teacher: '慢跑/健身', color: 'bg-rose-100/90 text-rose-950 border-rose-300 hover:bg-rose-200/90', active: true, desc: '健康管理' },
+            'self_study': { name: '自主自習', teacher: '補強進度', color: 'bg-slate-100/80 text-slate-800 border-slate-200 hover:bg-slate-200', active: true, desc: '彈性自習' }
+        };
+
+        // ----------------------------------------------------
+        // Calendar Timeline Weeks List (39 Weeks)
+        // ----------------------------------------------------
+        const weeksDatabase = [
+            { id: 1, start: '2026/06/08', end: '2026/06/14', notes: '開學首週！請點開上課任務對照普化先修進度。' },
+            { id: 2, start: '2026/06/15', end: '2026/06/21' },
+            { id: 3, start: '2026/06/22', end: '2026/06/28', notes: '端午節假期 / 6/25 有機先修CH3啟動！有機複習首度解鎖。國文01(1)開課。' },
+            { id: 4, start: '2026/06/29', end: '2026/07/05' },
+            { id: 5, start: '2026/07/06', end: '2026/07/12' },
+            { id: 6, start: '2026/07/13', end: '2026/07/19', notes: '7/19 普化精修(1) 首次實體課登場！' },
+            { id: 7, start: '2026/07/20', end: '2026/07/26', notes: '7/26 普化精修(2)' },
+            { id: 8, start: '2026/07/27', end: '2026/08/02', notes: '⚠️ 7/28 (二) 下午加開字彙01最後一堂結業班(14:00-17:00)！晚上由英文01接力。' },
+            { id: 9, start: '2026/08/03', end: '2026/08/09', notes: '8/9 普化精修(3)' },
+            { id: 10, start: '2026/08/10', end: '2026/08/16', notes: '8/11 生物31早晚課正常，下週起時間正式變更。' },
+            { id: 11, start: '2026/08/17', end: '2026/08/23', notes: '⚠️ 8/18 起，生物31週二班上課時間永久變更為：早09:00-12:00 / 午13:00-16:00！8/23 普化精修(4)。' },
+            { id: 12, start: '2026/08/24', end: '2026/08/30' },
+            { id: 13, start: '2026/08/31', end: '2026/09/06' },
+            { id: 14, start: '2026/09/07', end: '2026/09/13', notes: '9/13 普化精修(5)' },
+            { id: 15, start: '2026/09/14', end: '2026/09/20' },
+            { id: 16, start: '2026/09/21', end: '2026/09/27', notes: '9/27 第一次全校模考（週日）' },
+            { id: 17, start: '2026/09/28', end: '2026/10/04', notes: '教師節假期' },
+            { id: 18, start: '2026/10/05', end: '2026/10/11', notes: '10/10 雙十節(停課)。10/11 普化精修(6)' },
+            { id: 19, start: '2026/10/12', end: '2026/10/18' },
+            { id: 20, start: '2026/10/19', end: '2026/10/25', notes: '10/25 台灣光復節' },
+            { id: 21, start: '2026/10/26', end: '2026/11/01', notes: '11/1 普化精修(7)' },
+            { id: 22, start: '2026/11/02', end: '2026/11/08' },
+            { id: 23, start: '2026/11/09', end: '2026/11/15', notes: '11/15 普化精修(8)' },
+            { id: 24, start: '2026/11/16', end: '2026/11/22', notes: '11/18 有機加強(1)(2) 上架！' },
+            { id: 25, start: '2026/11/23', end: '2026/11/29', notes: '11/25 有機加強(3)(4) 上架！11/28 投開票日(停課)。11/29 第二次模考（週日）' },
+            { id: 26, start: '2026/11/30', end: '2026/12/06' },
+            { id: 27, start: '2026/12/07', end: '2026/12/13', notes: '⚠️ 12/10 生物31週四班結業。12/13 普化精修(9)(10) 全天結業班！' },
+            { id: 28, start: '2026/12/14', end: '2026/12/20' },
+            { id: 29, start: '2026/12/21', end: '2026/12/27', notes: '⚠️ 12/22 生物31週二班結業 (最後一堂延長班)！' },
+            { id: 30, start: '2026/12/28', end: '2027/01/03', notes: '1/1 元旦放假' },
+            { id: 31, start: '2027/01/04', end: '2027/01/10' },
+            { id: 32, start: '2027/01/11', end: '2027/01/17' },
+            { id: 33, start: '2027/01/18', end: '2027/01/24' },
+            { id: 34, start: '2027/01/25', end: '2027/01/31' },
+            { id: 35, start: '2027/02/01', end: '2027/02/07', notes: '春節連假 (2/5除夕 - 2/7初二)。2/6 國文停課。' },
+            { id: 36, start: '2027/02/08', end: '2027/02/14', notes: '春節連假 (2/9初四 - 2/10初五)' },
+            { id: 37, start: '2027/02/15', end: '2027/02/21', notes: '2/20 國文01結業班。' },
+            { id: 38, start: '2027/02/22', end: '2027/02/28', notes: '⚠️ 2/23 英文01結業！' },
+            { id: 39, start: '2027/03/01', end: '2027/03/07', notes: '3/5 第三次全校模考' }
+        ];
+
+        // ----------------------------------------------------
+        // Detailed Event Schedule Database
+        // Mapping Specific Dates to Course slots
+        // ----------------------------------------------------
+        const eventsDatabase = {
+            // Bio 31 (張劍鴻老師 - Tue Morning & Afternoon, Thu Morning)
+            // Tuesday Bio 31 slots (Before 8/18 shift: Morning 09:30-12:30, Afternoon 13:30-16:30)
+            '2026/06/09-morning': { id: 'bio31', name: '生物31 (1)', time: '09:30-12:30' },
+            '2026/06/09-afternoon': { id: 'bio31', name: '生物31 (2)', time: '13:30-16:30' },
+            '2026/06/16-morning': { id: 'bio31', name: '生物31', time: '09:30-12:30' },
+            '2026/06/16-afternoon': { id: 'bio31', name: '生物31', time: '13:30-16:30' },
+            '2026/06/23-morning': { id: 'bio31', name: '生物31', time: '09:30-12:30' },
+            '2026/06/23-afternoon': { id: 'bio31', name: '生物31', time: '13:30-16:30' },
+            '2026/07/03-morning': { id: 'bio31', name: '生物31', time: '09:30-12:30' },
+            '2026/06/30-morning': { id: 'bio31', name: '生物31', time: '09:30-12:30' },
+            '2026/06/30-afternoon': { id: 'bio31', name: '生物31', time: '13:30-16:30' },
+            '2026/07/07-morning': { id: 'bio31', name: '生物31', time: '09:30-12:30' },
+            '2026/07/07-afternoon': { id: 'bio31', name: '生物31', time: '13:30-16:30' },
+            '2026/07/14-morning': { id: 'bio31', name: '生物31', time: '09:30-12:30' },
+            '2026/07/14-afternoon': { id: 'bio31', name: '生物31', time: '13:30-16:30' },
+            '2026/07/21-morning': { id: 'bio31', name: '生物31', time: '09:30-12:30' },
+            '2026/07/21-afternoon': { id: 'bio31', name: '生物31', time: '13:30-16:30' },
+            '2026/08/04-morning': { id: 'bio31', name: '生物31', time: '09:30-12:30' },
+            '2026/08/04-afternoon': { id: 'bio31', name: '生物31', time: '13:30-16:30' },
+            '2026/08/11-morning': { id: 'bio31', name: '生物31', time: '09:30-12:30' },
+            '2026/08/11-afternoon': { id: 'bio31', name: '生物31', time: '13:30-16:30' },
+
+            // ⚠️ Corrected Rule: 8/18 onwards, Tuesday Biology 31 shifts permanently to: 09:00-12:00, 13:00-16:00
+            '2026/08/18-morning': { id: 'bio31', name: '生物31 (時間變更)', time: '09:00-12:00' },
+            '2026/08/18-afternoon': { id: 'bio31', name: '生物31 (時間變更)', time: '13:00-16:00' },
+            '2026/08/25-morning': { id: 'bio31', name: '生物31', time: '09:00-12:00' },
+            '2026/08/25-afternoon': { id: 'bio31', name: '生物31', time: '13:00-16:00' },
+            '2026/09/01-morning': { id: 'bio31', name: '生物31', time: '09:00-12:00' },
+            '2026/09/01-afternoon': { id: 'bio31', name: '生物31', time: '13:00-16:00' },
+            '2026/09/08-morning': { id: 'bio31', name: '生物31', time: '09:00-12:00' },
+            '2026/09/08-afternoon': { id: 'bio31', name: '生物31', time: '13:00-16:00' },
+            '2026/09/15-morning': { id: 'bio31', name: '生物31', time: '09:00-12:00' },
+            '2026/09/15-afternoon': { id: 'bio31', name: '生物31', time: '13:00-16:00' },
+            '2026/09/22-morning': { id: 'bio31', name: '生物31', time: '09:00-12:00' },
+            '2026/09/22-afternoon': { id: 'bio31', name: '生物31', time: '13:00-16:00' },
+            '2026/09/29-morning': { id: 'bio31', name: '生物31', time: '09:00-12:00' },
+            '2026/09/29-afternoon': { id: 'bio31', name: '生物31', time: '13:00-16:00' },
+            '2026/10/06-morning': { id: 'bio31', name: '生物31', time: '09:00-12:00' },
+            '2026/10/06-afternoon': { id: 'bio31', name: '生物31', time: '13:00-16:00' },
+            '2026/10/13-morning': { id: 'bio31', name: '生物31', time: '09:00-12:00' },
+            '2026/10/13-afternoon': { id: 'bio31', name: '生物31', time: '13:00-16:00' },
+            '2026/10/20-morning': { id: 'bio31', name: '生物31', time: '09:00-12:00' },
+            '2026/10/20-afternoon': { id: 'bio31', name: '生物31', time: '13:00-16:00' },
+            '2026/10/27-morning': { id: 'bio31', name: '生物31', time: '09:00-12:00' },
+            '2026/10/27-afternoon': { id: 'bio31', name: '生物31', time: '13:00-16:00' },
+            '2026/11/03-morning': { id: 'bio31', name: '生物31', time: '09:00-12:00' },
+            '2026/11/03-afternoon': { id: 'bio31', name: '生物31', time: '13:00-16:00' },
+            '2026/11/10-morning': { id: 'bio31', name: '生物31', time: '09:00-12:00' },
+            '2026/11/10-afternoon': { id: 'bio31', name: '生物31', time: '13:00-16:00' },
+            '2026/11/17-morning': { id: 'bio31', name: '生物31', time: '09:00-12:00' },
+            '2026/11/17-afternoon': { id: 'bio31', name: '生物31', time: '13:00-16:00' },
+            '2026/11/24-morning': { id: 'bio31', name: '生物31', time: '09:00-12:00' },
+            '2026/11/24-afternoon': { id: 'bio31', name: '生物31', time: '13:00-16:00' },
+            '2026/12/01-morning': { id: 'bio31', name: '生物31', time: '09:00-12:00' },
+            '2026/12/01-afternoon': { id: 'bio31', name: '生物31', time: '13:00-16:00' },
+            '2026/12/08-morning': { id: 'bio31', name: '生物31', time: '09:00-12:00' },
+            '2026/12/08-afternoon': { id: 'bio31', name: '生物31', time: '13:00-16:00' },
+            '2026/12/15-morning': { id: 'bio31', name: '生物31', time: '09:00-12:00' },
+            '2026/12/15-afternoon': { id: 'bio31', name: '生物31', time: '13:00-16:00' },
+            '2026/12/22-morning': { id: 'bio31', name: '生物31', time: '09:00-12:00' },
+            '2026/12/22-afternoon': { id: 'bio31', name: '生物31 (延長結業班*)', time: '13:00-16:00' },
+
+            // Thursday Bio 31 slots (Always 09:30-12:30)
+            '2026/06/11-morning': { id: 'bio31', name: '生物31', time: '09:30-12:30' },
+            '2026/06/18-morning': { id: 'bio31', name: '生物31', time: '09:30-12:30' },
+            '2026/06/25-morning': { id: 'bio31', name: '生物31', time: '09:30-12:30' },
+            '2026/07/02-morning': { id: 'bio31', name: '生物31', time: '09:30-12:30' },
+            '2026/07/09-morning': { id: 'bio31', name: '生物31', time: '09:30-12:30' },
+            '2026/07/16-morning': { id: 'bio31', name: '生物31', time: '09:30-12:30' },
+            '2026/07/23-morning': { id: 'bio31', name: '生物31', time: '09:30-12:30' },
+            '2026/07/30-morning': { id: 'bio31', name: '生物31', time: '09:30-12:30' },
+            '2026/08/06-morning': { id: 'bio31', name: '生物31', time: '09:30-12:30' },
+            '2026/08/13-morning': { id: 'bio31', name: '生物31', time: '09:30-12:30' },
+            '2026/08/20-morning': { id: 'bio31', name: '生物31', time: '09:30-12:30' },
+            '2026/08/27-morning': { id: 'bio31', name: '生物31', time: '09:30-12:30' },
+            '2026/09/03-morning': { id: 'bio31', name: '生物31', time: '09:30-12:30' },
+            '2026/09/10-morning': { id: 'bio31', name: '生物31', time: '09:30-12:30' },
+            '2026/09/17-morning': { id: 'bio31', name: '生物31', time: '09:30-12:30' },
+            '2026/09/24-morning': { id: 'bio31', name: '生物31', time: '09:30-12:30' },
+            '2026/10/01-morning': { id: 'bio31', name: '生物31', time: '09:30-12:30' },
+            '2026/10/08-morning': { id: 'bio31', name: '生物31', time: '09:30-12:30' },
+            '2026/10/15-morning': { id: 'bio31', name: '生物31', time: '09:30-12:30' },
+            '2026/10/22-morning': { id: 'bio31', name: '生物31', time: '09:30-12:30' },
+            '2026/10/29-morning': { id: 'bio31', name: '生物31', time: '09:30-12:30' },
+            '2026/11/05-morning': { id: 'bio31', name: '生物31', time: '09:30-12:30' },
+            '2026/11/12-morning': { id: 'bio31', name: '生物31', time: '09:30-12:30' },
+            '2026/11/19-morning': { id: 'bio31', name: '生物31', time: '09:30-12:30' },
+            '2026/11/26-morning': { id: 'bio31', name: '生物31', time: '09:30-12:30' },
+            '2026/12/03-morning': { id: 'bio31', name: '生物31', time: '09:30-12:30' },
+            '2026/12/10-morning': { id: 'bio31', name: '生物31 (結業)', time: '09:30-12:30' },
+
+            // Vocabulary 01 & English 01 (馬芸老師)
+            '2026/06/09-evening': { id: 'vocab01', name: '字彙01 (1)', time: '18:00-21:00' },
+            '2026/06/16-evening': { id: 'vocab01', name: '字彙01 (2)', time: '18:00-21:00' },
+            '2026/06/23-evening': { id: 'vocab01', name: '字彙01 (3)', time: '18:00-21:00' },
+            '2026/06/30-evening': { id: 'vocab01', name: '字彙01 (4)', time: '18:00-21:00' },
+            '2026/07/07-evening': { id: 'vocab01', name: '字彙01 (5)', time: '18:00-21:00' },
+            '2026/07/14-evening': { id: 'vocab01', name: '字彙01 (6)', time: '18:00-21:00' },
+            '2026/07/21-evening': { id: 'vocab01', name: '字彙01 (7)', time: '18:00-21:00' },
+            
+            // ⚠️ Corrected Rule: 7/28 afternoon is ONLY the final special class for Vocab 01* (14:00-17:00)
+            '2026/07/28-afternoon': { id: 'vocab01', name: '字彙01 (8*)', time: '14:00-17:00' },
+            
+            // English 01 starts Tue evening 7/28
+            '2026/07/28-evening': { id: 'english01', name: '英文01 (1)', time: '18:00-21:00' },
+            '2026/08/04-evening': { id: 'english01', name: '英文01 (2)', time: '18:00-21:00' },
+            '2026/08/11-evening': { id: 'english01', name: '英文01', time: '18:00-21:00' },
+            '2026/08/18-evening': { id: 'english01', name: '英文01', time: '18:00-21:00' },
+            '2026/08/25-evening': { id: 'english01', name: '英文01', time: '18:00-21:00' },
+            '2026/09/01-evening': { id: 'english01', name: '英文01', time: '18:00-21:00' },
+            '2026/09/08-evening': { id: 'english01', name: '英文01', time: '18:00-21:00' },
+            '2026/09/15-evening': { id: 'english01', name: '英文01', time: '18:00-21:00' },
+            '2026/09/22-evening': { id: 'english01', name: '英文01', time: '18:00-21:00' },
+            '2026/09/29-evening': { id: 'english01', name: '英文01', time: '18:00-21:00' },
+            '2026/10/06-evening': { id: 'english01', name: '英文01', time: '18:00-21:00' },
+            '2026/10/13-evening': { id: 'english01', name: '英文01', time: '18:00-21:00' },
+            '2026/10/20-evening': { id: 'english01', name: '英文01', time: '18:00-21:00' },
+            '2026/10/27-evening': { id: 'english01', name: '英文01', time: '18:00-21:00' },
+            '2026/11/03-evening': { id: 'english01', name: '英文01', time: '18:00-21:00' },
+            '2026/11/10-evening': { id: 'english01', name: '英文01', time: '18:00-21:00' },
+            '2026/11/17-evening': { id: 'english01', name: '英文01', time: '18:00-21:00' },
+            '2026/11/24-evening': { id: 'english01', name: '英文01', time: '18:00-21:00' },
+            '2026/12/01-evening': { id: 'english01', name: '英文01', time: '18:00-21:00' },
+            '2026/12/08-evening': { id: 'english01', name: '英文01', time: '18:00-21:00' },
+            '2026/12/15-evening': { id: 'english01', name: '英文01', time: '18:00-21:00' },
+            '2026/12/22-evening': { id: 'english01', name: '英文01', time: '18:00-21:00' },
+            '2026/12/29-evening': { id: 'english01', name: '英文01', time: '18:00-21:00' },
+            '2027/01/05-evening': { id: 'english01', name: '英文01', time: '18:00-21:00' },
+            '2027/01/12-evening': { id: 'english01', name: '英文01', time: '18:00-21:00' },
+            '2027/01/19-evening': { id: 'english01', name: '英文01', time: '18:00-21:00' },
+            '2027/01/26-evening': { id: 'english01', name: '英文01', time: '18:00-21:00' },
+            '2027/02/02-evening': { id: 'english01', name: '英文01', time: '18:00-21:00' },
+            '2027/02/16-evening': { id: 'english01', name: '英文01', time: '18:00-21:00' },
+            '2027/02/23-evening': { id: 'english01 (結業*)', time: '18:00-21:00' },
+
+            // Saturday 國文 01 (09:30-12:30)
+            '2026/06/27-morning': { id: 'chinese01', name: '國文01 (1)', time: '09:30-12:30' },
+            '2026/07/04-morning': { id: 'chinese01', name: '國文01 (2)', time: '09:30-12:30' },
+            '2026/07/11-morning': { id: 'chinese01', name: '國文01', time: '09:30-12:30' },
+            '2026/07/18-morning': { id: 'chinese01', name: '國文01', time: '09:30-12:30' },
+            '2026/07/25-morning': { id: 'chinese01', name: '國文01', time: '09:30-12:30' },
+            '2026/08/01-morning': { id: 'chinese01', name: '國文01', time: '09:30-12:30' },
+            '2026/08/08-morning': { id: 'chinese01', name: '國文01', time: '09:30-12:30' },
+            '2026/08/15-morning': { id: 'chinese01', name: '國文01', time: '09:30-12:30' },
+            '2026/08/22-morning': { id: 'chinese01', name: '國文01', time: '09:30-12:30' },
+            '2026/08/29-morning': { id: 'chinese01', name: '國文01', time: '09:30-12:30' },
+            '2026/09/05-morning': { id: 'chinese01', name: '國文01', time: '09:30-12:30' },
+            '2026/09/12-morning': { id: 'chinese01', name: '國文01', time: '09:30-12:30' },
+            '2026/09/19-morning': { id: 'chinese01', name: '國文01', time: '09:30-12:30' },
+            '2026/09/26-morning': { id: 'chinese01', name: '國文01', time: '09:30-12:30' },
+            '2026/10/03-morning': { id: 'chinese01', name: '國文01', time: '09:30-12:30' },
+            // 10/10 雙十節 (停課)
+            '2026/10/17-morning': { id: 'chinese01', name: '國文01', time: '09:30-12:30' },
+            '2026/10/24-morning': { id: 'chinese01', name: '國文01', time: '09:30-12:30' },
+            '2026/10/31-morning': { id: 'chinese01', name: '國文01', time: '09:30-12:30' },
+            '2026/11/07-morning': { id: 'chinese01', name: '國文01', time: '09:30-12:30' },
+            '2026/11/14-morning': { id: 'chinese01', name: '國文01', time: '09:30-12:30' },
+            '2026/11/21-morning': { id: 'chinese01', name: '國文01', time: '09:30-12:30' },
+            // 11/28 投開票日 (停課)
+            '2026/12/05-morning': { id: 'chinese01', name: '國文01', time: '09:30-12:30' },
+            '2026/12/12-morning': { id: 'chinese01', name: '國文01', time: '09:30-12:30' },
+            '2026/12/19-morning': { id: 'chinese01', name: '國文01', time: '09:30-12:30' },
+            '2026/12/26-morning': { id: 'chinese01', name: '國文01', time: '09:30-12:30' },
+            '2027/01/02-morning': { id: 'chinese01', name: '國文01', time: '09:30-12:30' },
+            '2027/01/09-morning': { id: 'chinese01', name: '國文01', time: '09:30-12:30' },
+            '2027/01/16-morning': { id: 'chinese01', name: '國文01', time: '09:30-12:30' },
+            '2027/01/23-morning': { id: 'chinese01', name: '國文01', time: '09:30-12:30' },
+            '2027/01/30-morning': { id: 'chinese01', name: '國文01', time: '09:30-12:30' },
+            // 2/6 大年初一 (春節停課)
+            '2027/02/13-morning': { id: 'chinese01', name: '國文01', time: '09:30-12:30' },
+            '2027/02/20-morning': { id: 'chinese01 (結業*)', time: '09:30-12:30' },
+
+            // General Chemistry Special (劉軍老師 普化精修 - Sundays Afternoon)
+            '2026/07/19-afternoon': { id: 'chem_spec', name: '普化精修 (1)', time: '14:00-17:00' },
+            '2026/07/26-afternoon': { id: 'chem_spec', name: '普化精修 (2)', time: '14:00-17:00' },
+            '2026/08/09-afternoon': { id: 'chem_spec', name: '普化精修 (3)', time: '14:00-17:00' },
+            '2026/08/23-afternoon': { id: 'chem_spec', name: '普化精修 (4)', time: '14:00-17:00' },
+            '2026/09/13-afternoon': { id: 'chem_spec', name: '普化精修 (5)', time: '14:00-17:00' },
+            '2026/10/11-afternoon': { id: 'chem_spec', name: '普化精修 (6)', time: '14:00-17:00' },
+            '2026/11/01-afternoon': { id: 'chem_spec', name: '普化精修 (7)', time: '14:00-17:00' },
+            '2026/11/15-afternoon': { id: 'chem_spec', name: '普化精修 (8)', time: '14:00-17:00' },
+            
+            // 12/13 Special Full Day class (both morning and afternoon)
+            '2026/12/13-morning': { id: 'chem_spec', name: '普化精修 (9)', time: '09:30-12:30' },
+            '2026/12/13-afternoon': { id: 'chem_spec', name: '普化精修 (10*)', time: '14:00-17:00' },
+
+            // ----------------------------------------------------
+            // Chemistry & Organic (梁傑 雲端正課 - 直接佔用時間格子)
+            // ----------------------------------------------------
+            // Wednesdays Afternoon is dedicated to Chemistry Main
+            '2026/06/10-afternoon': { id: 'chem_main', name: '普化正課 (1)-(4)', time: '13:30-16:30', unit: 'CH1 單位與有效數字' },
+            '2026/06/17-afternoon': { id: 'chem_main', name: '普化正課 (5)-(8)', time: '13:30-16:30', unit: 'CH1 原子結構 & CH2 週期表' },
+            '2026/06/24-afternoon': { id: 'chem_main', name: '普化正課 (9)-(14)', time: '13:30-16:30', unit: 'CH2 分子軌域' },
+            '2026/07/15-afternoon': { id: 'chem_main', name: '普化正課 (15)(16)', time: '13:30-16:30', unit: 'CH6 液體與固體性質' },
+            '2026/07/22-afternoon': { id: 'chem_main', name: '普化正課 (17)(18)', time: '13:30-16:30', unit: 'CH6 溶液行為' },
+            '2026/07/29-afternoon': { id: 'chem_main', name: '普化正課 (19)(20)', time: '13:30-16:30', unit: 'CH6 滲透壓' },
+            '2026/08/05-afternoon': { id: 'chem_main', name: '普化正課 (21)(22)', time: '13:30-16:30', unit: 'CH6 膠體化學' },
+            '2026/08/12-afternoon': { id: 'chem_main', name: '普化正課 (23)(24)', time: '13:30-16:30', unit: 'CH7 化學動力學' },
+            '2026/08/19-afternoon': { id: 'chem_main', name: '普化正課 (25)(26)', time: '13:30-16:30', unit: 'CH7 催化 & CH8 化學平衡' },
+            '2026/08/26-afternoon': { id: 'chem_main', name: '普化正課 (27)(28)', time: '13:30-16:30', unit: 'CH8 平衡移動' },
+            '2026/09/02-afternoon': { id: 'chem_main', name: '普化正課 (29)(30)', time: '13:30-16:30', unit: 'CH9 酸鹼平衡強酸鹼' },
+            '2026/09/09-afternoon': { id: 'chem_main', name: '普化正課 (31)(32)', time: '13:30-16:30', unit: 'CH9 弱酸鹼 & CH10 鹽類水解' },
+            '2026/09/16-afternoon': { id: 'chem_main', name: '普化正課 (33)(34)', time: '13:30-16:30', unit: 'CH10 緩衝溶液' },
+            '2026/09/23-afternoon': { id: 'chem_main', name: '普化正課 (35)(36)', time: '13:30-16:30', unit: 'CH11 溶解度積' },
+            '2026/09/30-afternoon': { id: 'chem_main', name: '普化正課 (37)(38)', time: '13:30-16:30', unit: 'CH11 絡合物平衡 & CH12 自由能' },
+            '2026/10/07-afternoon': { id: 'chem_main', name: '普化正課 (39)(40)', time: '13:30-16:30', unit: 'CH12 熱力學定律' },
+            '2026/10/14-afternoon': { id: 'chem_main', name: '普化正課 (41)(42)', time: '13:30-16:30', unit: 'CH12 熵與平衡常數' },
+            '2026/10/21-afternoon': { id: 'chem_main', name: '普化正課 (43)(44)', time: '13:30-16:30', unit: 'CH13 電化學半反應' },
+            '2026/10/28-afternoon': { id: 'chem_main', name: '普化正課 (45)(46)', time: '13:30-16:30', unit: 'CH13 濃差電池 & CH14 核化學' },
+            '2026/11/04-afternoon': { id: 'chem_main', name: '普化正課 (47)(48)', time: '13:30-16:30', unit: 'CH14 核分裂與衰變' },
+            '2026/11/11-afternoon': { id: 'chem_main', name: '普化正課 (49)(50)*', time: '13:30-16:30', unit: 'CH15-16 配位化合物 (結業)' },
+
+            // Thursdays Afternoon is dedicated to Organic Main
+            '2026/07/16-afternoon': { id: 'org_main', name: '有機正課 (1)(2)', time: '13:30-16:30', unit: 'CH1 有機結構與酸鹼' },
+            '2026/07/23-afternoon': { id: 'org_main', name: '有機正課 (3)(4)', time: '13:30-16:30', unit: 'CH1 軌域混成理論' },
+            '2026/07/30-afternoon': { id: 'org_main', name: '有機正課 (5)(6)', time: '13:30-16:30', unit: 'CH2 烷類與立體構形' },
+            '2026/08/06-afternoon': { id: 'org_main', name: '有機正課 (7)(8)', time: '13:30-16:30', unit: 'CH2 環烷結構張力' },
+            '2026/08/13-afternoon': { id: 'org_main', name: '有機正課 (9)(10)', time: '13:30-16:30', unit: 'CH3 立體化學對映異構' },
+            '2026/08/20-afternoon': { id: 'org_main', name: '有機正課 (11)(12)', time: '13:30-16:30', unit: 'CH4 鹵烷取代反應機制' },
+            '2026/08/27-afternoon': { id: 'org_main', name: '有機正課 (13)(14)', time: '13:30-16:30', unit: 'CH5 鹵烷消去反應機制' },
+            '2026/09/03-afternoon': { id: 'org_main', name: '有機正課 (15)(16)', time: '13:30-16:30', unit: 'CH5 取代與消去反應競爭' },
+            '2026/09/10-afternoon': { id: 'org_main', name: '有機正課 (17)(18)', time: '13:30-16:30', unit: 'CH6 烯類親電加成' },
+            '2026/09/17-afternoon': { id: 'org_main', name: '有機正課 (19)(20)', time: '13:30-16:30', unit: 'CH6 烯加成 & CH7 炔類合成與反應' },
+            '2026/09/24-afternoon': { id: 'org_main', name: '有機正課 (21)(22)', time: '13:30-16:30', unit: 'CH8 共軛雙烯性質' },
+            '2026/10/01-afternoon': { id: 'org_main', name: '有機正課 (23)(24)', time: '13:30-16:30', unit: 'CH8 共軛烯加成' },
+            '2026/10/08-afternoon': { id: 'org_main', name: '有機正課 (25)(26)', time: '13:30-16:30', unit: 'CH8 週環反應 & CH9 芳香烴' },
+            '2026/10/15-afternoon': { id: 'org_main', name: '有機正課 (27)(28)', time: '13:30-16:30', unit: 'CH9 芳香族親電取代' },
+            '2026/10/22-afternoon': { id: 'org_main', name: '有機正課 (29)(30)', time: '13:30-16:30', unit: 'CH10 醇與酚之酸性與合成' },
+            '2026/10/29-afternoon': { id: 'org_main', name: '有機正課 (31)(32)', time: '13:30-16:30', unit: 'CH10 醚與環氧化合物反應' },
+            '2026/11/05-afternoon': { id: 'org_main', name: '有機正課 (33)(34)', time: '13:30-16:30', unit: 'CH10 硫醇與硫醚' },
+            '2026/11/12-afternoon': { id: 'org_main', name: '有機正課 (35)(36)', time: '13:30-16:30', unit: 'CH11 醛與酮親核加成' },
+            '2026/11/19-afternoon': { id: 'org_main', name: '有機正課 (37)(38)', time: '13:30-16:30', unit: 'CH12-13 羧酸衍生物親核取代' },
+            '2026/11/26-afternoon': { id: 'org_main', name: '有機正課 (39)(40)*', time: '13:30-16:30', unit: 'CH14 胺類化學 (結業)' },
+
+            // Prep Courses
+            '2026/06/25-afternoon': { id: 'org_prep', name: '有機先修 (1)(2)', time: '13:30-16:30', unit: '普化 CH3 基礎' },
+            '2026/07/01-afternoon': { id: 'org_prep', name: '有機先修 (3)(4)', time: '13:30-16:30', unit: '普化 CH3-CH4 進階' },
+            '2026/07/02-afternoon': { id: 'org_prep', name: '有機先修 (5)(6)', time: '13:30-16:30', unit: '普化 CH4 軌域與反應理論' },
+            '2026/07/08-afternoon': { id: 'org_prep', name: '有機先修 (7)(8)', time: '13:30-16:30', unit: '普化 CH5 基礎氣體' },
+            '2026/07/09-afternoon': { id: 'org_prep', name: '有機先修 (9)(10)*', time: '13:30-16:30', unit: '普化 CH5 氣體熱力學' },
+
+            // Organic Add-on Course (11/18 & 11/25 Wednesdays Afternoon)
+            '2026/11/18-afternoon': { id: 'org_add', name: '有機加強 (1)(2)', time: '13:30-16:30', unit: '構形分析、鹵烷類取代、烯類加成' },
+            '2026/11/25-afternoon': { id: 'org_add', name: '有機加強 (3)(4)*', time: '13:30-16:30', unit: '芳香族化合物取代、羰基加成、有機反應 (結業)' }
+        };
+
+        // ----------------------------------------------------
+        // App State Management Variables
+        // ----------------------------------------------------
+        let currentWeekIndex = 0; // Starts from W1 (Index 0)
+
+        // ----------------------------------------------------
+        // Initializing State and badge generation
+        // ----------------------------------------------------
+        window.onload = function() {
+            generateCourseBadges();
+            populateWeekSelector();
+            renderWeek(currentWeekIndex);
+        }
+
+        // Generate course legend cards with interactive toggles
+        function generateCourseBadges() {
+            const container = document.getElementById('course-badges-container');
+            container.innerHTML = '';
+            
+            Object.keys(courseConfig).forEach(key => {
+                const course = courseConfig[key];
+                const activeClass = course.active ? 'opacity-100 ring-2 ring-amber-500 shadow-sm' : 'opacity-40';
+                
+                const badge = document.createElement('div');
+                badge.id = `badge-${key}`;
+                badge.className = `flex flex-col justify-between p-2.5 rounded-xl border cursor-pointer transition-all duration-200 ${course.color} ${activeClass}`;
+                badge.onclick = () => toggleCourse(key);
+                
+                badge.innerHTML = `
+                    <div class="flex items-center justify-between mb-1">
+                        <span class="font-bold text-xs flex items-center gap-1.5 truncate">
+                            <i class="fa-solid ${course.active ? 'fa-circle-check text-amber-600' : 'fa-circle text-slate-300'}"></i>
+                            ${course.name}
+                        </span>
+                        <span class="text-[8px] px-1 py-0.5 bg-white/60 rounded font-semibold text-slate-700 shrink-0">${course.desc}</span>
+                    </div>
+                    <div class="text-[9px] opacity-75 font-medium truncate">對象: ${course.teacher}</div>
+                `;
+                container.appendChild(badge);
+            });
+        }
+
+        // Toggle visibility of specific courses
+        function toggleCourse(key) {
+            courseConfig[key].active = !courseConfig[key].active;
+            generateCourseBadges();
+            renderWeek(currentWeekIndex);
+        }
+
+        // Toggle all courses helper
+        function toggleAllCourses(status) {
+            Object.keys(courseConfig).forEach(key => {
+                courseConfig[key].active = status;
+            });
+            generateCourseBadges();
+            renderWeek(currentWeekIndex);
+        }
+
+        // Fill Selector dropdown options
+        function populateWeekSelector() {
+            const select = document.getElementById('week-select');
+            select.innerHTML = '';
+            
+            weeksDatabase.forEach((week, index) => {
+                const opt = document.createElement('option');
+                opt.value = index;
+                opt.innerText = `第 ${week.id} 週 (${week.start} ~ ${week.end})`;
+                select.appendChild(opt);
+            });
+        }
+
+        // Navigation actions
+        function selectWeek(index) {
+            currentWeekIndex = parseInt(index);
+            renderWeek(currentWeekIndex);
+        }
+
+        function prevWeek() {
+            if (currentWeekIndex > 0) {
+                currentWeekIndex--;
+                document.getElementById('week-select').value = currentWeekIndex;
+                renderWeek(currentWeekIndex);
+            }
+        }
+
+        function nextWeek() {
+            if (currentWeekIndex < weeksDatabase.length - 1) {
+                currentWeekIndex++;
+                document.getElementById('week-select').value = currentWeekIndex;
+                renderWeek(currentWeekIndex);
+            }
+        }
+
+        function jumpToCurrentWeek() {
+            const today = new Date(); 
+            let targetIdx = 0;
+            
+            const nowTime = today.getTime();
+            for (let i = 0; i < weeksDatabase.length; i++) {
+                const start = new Date(weeksDatabase[i].start).getTime();
+                const end = new Date(weeksDatabase[i].end).getTime();
+                if (nowTime >= start && nowTime <= end) {
+                    targetIdx = i;
+                    break;
+                }
+            }
+            
+            currentWeekIndex = targetIdx;
+            document.getElementById('week-select').value = currentWeekIndex;
+            renderWeek(currentWeekIndex);
+        }
+
+        // Accurate Timezone-Agnostic Date calculation helper
+        function addDaysString(baseDateStr, daysOffset) {
+            const date = new Date(baseDateStr);
+            date.setDate(date.getDate() + daysOffset);
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            return `${y}/${m}/${d}`;
+        }
+
+        // ----------------------------------------------------
+        // Dynamic Weekly Grid Calculation & Placement Engine
+        // ----------------------------------------------------
+        function calculateWeeklySchedule(weekIndex) {
+            const week = weeksDatabase[weekIndex];
+            const dayKeys = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+            const slots = ['morning', 'afternoon', 'evening'];
+
+            // Initialize Grid representation
+            let grid = {};
+            dayKeys.forEach(dk => {
+                grid[dk] = { morning: null, afternoon: null, evening: null };
+            });
+
+            // A. Populate scheduled classes (including online classes which now act as afternoon slots!)
+            dayKeys.forEach((dayKey, offset) => {
+                const dateStr = addDaysString(week.start, offset);
+
+                slots.forEach(slot => {
+                    const eventKey = `${dateStr}-${slot}`;
+                    const event = eventsDatabase[eventKey];
+                    if (event && courseConfig[event.id] && courseConfig[event.id].active) {
+                        grid[dayKey][slot] = {
+                            type: 'class',
+                            id: event.id,
+                            name: event.name,
+                            time: event.time,
+                            teacher: courseConfig[event.id].teacher,
+                            unit: event.unit || null
+                        };
+                    }
+                });
+            });
+
+            // Inject Custom Chinese Course on Friday Afternoon
+            if (courseConfig['chinese_extra'].active) {
+                grid['fri']['afternoon'] = {
+                    type: 'class',
+                    id: 'chinese_extra',
+                    name: '國文(自選)',
+                    time: '13:30 - 16:30',
+                    teacher: courseConfig['chinese_extra'].teacher
+                };
+            }
+
+            // B. Place static Workout Session on Wednesday evening if active and slot is clear
+            if (courseConfig['workout'].active && !grid['wed']['evening']) {
+                grid['wed']['evening'] = {
+                    type: 'workout',
+                    id: 'workout',
+                    name: '運動時間 🏃‍♂️',
+                    time: '18:30 - 20:30'
+                };
+            }
+
+            // C. Gather revision triggers based on scheduled classes of the day
+            let revisionTriggers = []; // { dayIdx, courseType, sourceSlot }
+            dayKeys.forEach((dayKey, dayIdx) => {
+                slots.forEach(slot => {
+                    const item = grid[dayKey][slot];
+                    if (item && item.type === 'class') {
+                        let cType = '';
+                        if (item.id.startsWith('bio')) cType = 'bio';
+                        if (item.id.startsWith('chem') || item.id === 'chem_spec') cType = 'chem';
+                        if (item.id.startsWith('org')) cType = 'org';
+                        if (item.id.startsWith('vocab') || item.id.startsWith('english')) cType = 'eng';
+                        if (item.id.startsWith('chinese')) cType = 'chi';
+                        
+                        if (cType) revisionTriggers.push({ dayIdx, cType, slot });
+                    }
+                });
+            });
+
+            // Filter duplicates (only one revision of a specific type triggered per day)
+            let uniqueTriggers = [];
+            let seen = {};
+            revisionTriggers.forEach(t => {
+                const key = `${t.dayIdx}-${t.cType}`;
+                if (!seen[key]) {
+                    seen[key] = true;
+                    uniqueTriggers.push(t);
+                }
+            });
+
+            // Helper to place revision in empty slot: same day (later slot) or next day (any slot)
+            function placeRevision(startDayIdx, type, revId, revName) {
+                const organicStartDate = new Date('2026/06/25'); //首堂上架日
+
+                // Double Check Rule: No Organic revision before 6/25!
+                if (type === 'org') {
+                    const currentDayObj = new Date(addDaysString(week.start, startDayIdx));
+                    if (currentDayObj < organicStartDate) {
+                        return false; // Organic has not started! Skip.
+                    }
+                }
+
+                const dayKeyToday = dayKeys[startDayIdx];
+                const dayKeyTomorrow = dayKeys[(startDayIdx + 1) % 7];
+
+                // 1. Try Same Day (if slot is AFTER trigger slot)
+                const triggerObj = uniqueTriggers.find(ut => ut.dayIdx === startDayIdx && ut.cType === type);
+                const triggerSlot = triggerObj ? triggerObj.slot : 'morning';
+                let sameDayCheckSlots = [];
+                if (triggerSlot === 'morning') sameDayCheckSlots = ['afternoon', 'evening'];
+                else if (triggerSlot === 'afternoon') sameDayCheckSlots = ['evening'];
+
+                for (let s of sameDayCheckSlots) {
+                    if (!grid[dayKeyToday][s]) {
+                        grid[dayKeyToday][s] = {
+                            type: 'revision',
+                            id: revId,
+                            name: revName,
+                            time: s === 'afternoon' ? '13:30 - 16:30' : '18:30 - 21:30'
+                        };
+                        return true;
+                    }
+                }
+
+                // 2. Try Tomorrow (any slot)
+                for (let s of slots) {
+                    if (!grid[dayKeyTomorrow][s]) {
+                        grid[dayKeyTomorrow][s] = {
+                            type: 'revision',
+                            id: revId,
+                            name: revName,
+                            time: s === 'morning' ? '09:00 - 12:00' : (s === 'afternoon' ? '13:30 - 16:30' : '18:30 - 21:30')
+                        };
+                        return true;
+                    }
+                }
+
+                // 3. Fallback: whole week scanning from next day onwards
+                for (let i = 2; i < 7; i++) {
+                    const checkDayKey = dayKeys[(startDayIdx + i) % 7];
+                    for (let s of slots) {
+                        if (!grid[checkDayKey][s]) {
+                            grid[checkDayKey][s] = {
+                                type: 'revision',
+                                id: revId,
+                                name: revName,
+                                time: s === 'morning' ? '09:00 - 12:00' : (s === 'afternoon' ? '13:30 - 16:30' : '18:30 - 21:30')
+                            };
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+
+            // Execute triggers to schedule revision blocks dynamically
+            uniqueTriggers.forEach(t => {
+                if (t.cType === 'bio' && courseConfig['bio_rev'].active) {
+                    placeRevision(t.dayIdx, 'bio', 'bio_rev', '生物複習');
+                } else if (t.cType === 'chem' && courseConfig['chem_rev'].active) {
+                    placeRevision(t.dayIdx, 'chem', 'chem_rev', '普化複習');
+                } else if (t.cType === 'org' && courseConfig['org_rev'].active) {
+                    placeRevision(t.dayIdx, 'org', 'org_rev', '有機複習');
+                } else if (t.cType === 'eng' && courseConfig['eng_rev'].active) {
+                    placeRevision(t.dayIdx, 'eng', 'eng_rev', '英文複習');
+                } else if (t.cType === 'chi' && courseConfig['chi_rev'].active) {
+                    placeRevision(t.dayIdx, 'chi', 'chi_rev', '國文複習');
+                }
+            });
+
+            // --- 新增：自動填補空閒時段為「自主自習」 ---
+            const fillerSubjects = ['生物', '普化', '有機', '英文', '國文'];
+            let fillerIdx = 0;
+            
+            dayKeys.forEach((dk, dIdx) => {
+                slots.forEach(s => {
+                    if (!grid[dk][s]) {
+                        const subject = fillerSubjects[fillerIdx % fillerSubjects.length];
+                        grid[dk][s] = {
+                            type: 'self_study',
+                            id: 'self_study',
+                            name: `${subject}自習`,
+                            time: s === 'morning' ? '09:00 - 12:00' : (s === 'afternoon' ? '13:30 - 16:30' : '18:30 - 21:30')
+                        };
+                        fillerIdx++;
+                    }
+                });
+            });
+
+            return { grid };
+        }
+
+        // ----------------------------------------------------
+        // Rendering Specific Week Schedule
+        // ----------------------------------------------------
+        function renderWeek(index) {
+            const week = weeksDatabase[index];
+            const dayKeys = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+            const cellSlots = ['morning', 'afternoon', 'evening'];
+            
+            // 1. Update calendar text displays
+            document.getElementById('week-number-display').innerText = `WEEK ${week.id}`;
+            document.getElementById('date-range-display').innerText = `${week.start} - ${week.end}`;
+            document.getElementById('grid-title').innerText = `116年高點後中醫【台北班】當週課表 (第 ${week.id} 週)`;
+            document.getElementById('grid-subtitle').innerText = `當週日期：${week.start} - ${week.end} ${week.notes ? ' | 💡 ' + week.notes : ''}`;
+
+            // 2. Map calendar date headers dynamically
+            dayKeys.forEach((day, offset) => {
+                const dateStr = addDaysString(week.start, offset);
+                const parts = dateStr.split('/');
+                document.getElementById(`date-${day}`).innerText = `${parseInt(parts[1])}/${parseInt(parts[2])}`;
+            });
+
+            // 3. Reset all cells
+            dayKeys.forEach(day => {
+                cellSlots.forEach(slot => {
+                    const cell = document.getElementById(`cell-${day}-${slot}`);
+                    if (cell) cell.innerHTML = '';
+                });
+            });
+
+            // Calculate Grid
+            const { grid } = calculateWeeklySchedule(index);
+
+            // 4. Fill UI Cells with calculated grid items
+            let checklistTasksByDay = { mon: [], tue: [], wed: [], thu: [], fri: [], sat: [], sun: [] };
+
+            dayKeys.forEach((day, offset) => {
+                cellSlots.forEach(slot => {
+                    const cell = document.getElementById(`cell-${day}-${slot}`);
+                    const item = grid[day][slot];
+
+                    if (item) {
+                        const config = courseConfig[item.id];
+                        const card = document.createElement('div');
+
+                        if (item.type === 'class') {
+                            const isCloud = config.desc.includes('雲端');
+                            card.className = `p-2.5 rounded-2xl border text-xs shadow-sm transition-all duration-150 ${config.color} transform hover:-translate-y-0.5 ${isCloud ? 'border-dashed border-2 ring-1 ring-sky-500/20' : ''}`;
+                            card.innerHTML = `
+                                <div class="font-extrabold flex items-center justify-between">
+                                    <span class="truncate">${item.name}</span>
+                                    <span class="${isCloud ? 'bg-sky-600' : 'bg-amber-600'} text-white text-[8px] px-1 py-0.5 rounded uppercase font-bold shrink-0">
+                                        ${isCloud ? '雲端正課' : '正課'}
+                                    </span>
+                                </div>
+                                <div class="text-[10px] font-semibold opacity-90 mt-1"><i class="fa-solid fa-clock mr-1"></i> ${item.time}</div>
+                                ${item.unit ? `<div class="text-[9px] font-medium text-slate-700 mt-0.5 truncate"><i class="fa-solid fa-book-open mr-1"></i> 單元: ${item.unit}</div>` : `<div class="text-[9px] opacity-75 mt-0.5"><i class="fa-solid fa-user-tie mr-1"></i> ${config.teacher} 老師</div>`}
+                            `;
+                            cell.appendChild(card);
+                        } 
+                        else if (item.type === 'revision') {
+                            card.className = `p-2.5 rounded-3xl border-2 text-xs shadow-sm transition-all duration-150 ${config.color} transform hover:-translate-y-0.5 relative overflow-hidden flex flex-col justify-between min-h-[70px]`;
+                            card.innerHTML = `
+                                <div>
+                                    <div class="font-bold flex items-center justify-between text-slate-900">
+                                        <span>${item.name}</span>
+                                    </div>
+                                    <div class="text-[10px] font-semibold opacity-85 mt-1"><i class="fa-solid fa-clock mr-1"></i> ${item.time}</div>
+                                </div>
+                                <div class="absolute right-2 bottom-1 w-6 h-6 rounded-full border border-red-500/60 flex items-center justify-center transform rotate-12 scale-90 select-none bg-white/40">
+                                    <span class="text-[9px] text-red-500/80 font-black handwritten">複</span>
+                                </div>
+                            `;
+                            cell.appendChild(card);
+
+                            // Push revision to checklist list (no regular classes!)
+                            checklistTasksByDay[day].push({
+                                id: item.id,
+                                name: item.name,
+                                time: item.time,
+                                type: 'revision'
+                            });
+                        } 
+                        else if (item.type === 'workout') {
+                            card.className = `p-2.5 rounded-3xl border-2 text-xs shadow-sm transition-all duration-150 ${config.color} transform hover:-translate-y-0.5 relative overflow-hidden flex flex-col justify-between min-h-[70px]`;
+                            card.innerHTML = `
+                                <div>
+                                    <div class="font-bold flex items-center justify-between text-slate-900">
+                                        <span>${item.name}</span>
+                                        <span class="text-[10px]">🏃‍♂️</span>
+                                    </div>
+                                    <div class="text-[10px] font-semibold opacity-85 mt-1"><i class="fa-solid fa-clock mr-1"></i> ${item.time}</div>
+                                </div>
+                                <div class="absolute right-2 bottom-1 w-6 h-6 rounded-full border border-emerald-500/60 flex items-center justify-center transform -rotate-12 scale-90 select-none bg-white/40">
+                                    <span class="text-[9px] text-emerald-600/80 font-black handwritten">動</span>
+                                </div>
+                            `;
+                            cell.appendChild(card);
+
+                            // Push workout to checklist list
+                            checklistTasksByDay[day].push({
+                                id: item.id,
+                                name: item.name,
+                                time: item.time,
+                                type: 'workout'
+                            });
+                        }
+                        else if (item.type === 'self_study') {
+                            card.className = `p-2.5 rounded-xl border border-dashed text-xs shadow-sm bg-slate-50/50 text-slate-500 transform hover:scale-[1.02] transition duration-150`;
+                            card.innerHTML = `
+                                <div class="font-bold flex items-center justify-between text-slate-600">
+                                    <span>${item.name}</span>
+                                    <i class="fa-solid fa-book-reader text-[10px] opacity-50"></i>
+                                </div>
+                                <div class="text-[10px] opacity-75 mt-1"><i class="fa-solid fa-clock mr-1"></i> ${item.time}</div>
+                            `;
+                            cell.appendChild(card);
+                        }
+                    }
+                });
+            });
+
+            // 6. Render daily categorized checklist
+            renderDailyChecklist(checklistTasksByDay, week.id);
+        }
+
+        // ----------------------------------------------------
+        // Daily-Categorized Checklist Render Function
+        // ----------------------------------------------------
+        function renderDailyChecklist(tasksByDay, weekId) {
+            const container = document.getElementById('checklist-daily-container');
+            container.innerHTML = '';
+
+            const dayNamesTC = {
+                mon: '星期一 (Mon)',
+                tue: '星期二 (Tue)',
+                wed: '星期三 (Wed)',
+                thu: '星期四 (Thu)',
+                fri: '星期五 (Fri)',
+                sat: '星期六 (Sat)',
+                sun: '星期日 (Sun)'
+            };
+
+            const dayKeys = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+            let totalTasks = 0;
+
+            dayKeys.forEach(day => {
+                const tasks = tasksByDay[day];
+                if (tasks.length === 0) return; // Skip days with no revision or workout tasks
+
+                totalTasks += tasks.length;
+
+                // Day Wrapper Header Card
+                const dayBlock = document.createElement('div');
+                dayBlock.className = "bg-slate-50/50 p-4 rounded-2xl border border-slate-100/80 mb-3";
+
+                dayBlock.innerHTML = `
+                    <div class="border-l-4 border-amber-500 pl-2.5 mb-3 flex items-center justify-between">
+                        <span class="text-xs sm:text-sm font-bold text-slate-800">${dayNamesTC[day]}</span>
+                        <span class="text-[9px] bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded font-bold">${tasks.length} 個任務</span>
+                    </div>
+                    <div class="space-y-2" id="checklist-sub-${day}"></div>
+                `;
+                container.appendChild(dayBlock);
+
+                const subContainer = document.getElementById(`checklist-sub-${day}`);
+                tasks.forEach((task, index) => {
+                    const storageKey = `116_med_scheduler_w${weekId}_day_${day}_t_${index}`;
+                    const isChecked = localStorage.getItem(storageKey) === 'true' ? 'checked' : '';
+                    const isWorkout = task.type === 'workout';
+
+                    const taskDiv = document.createElement('div');
+                    taskDiv.className = `flex items-start gap-3 p-3 rounded-xl border border-white bg-white shadow-sm hover:shadow-md transition ${isChecked ? 'opacity-60 bg-slate-50/50' : ''}`;
+                    
+                    taskDiv.innerHTML = `
+                        <div class="flex items-center h-5 mt-0.5">
+                            <input type="checkbox" id="${storageKey}" ${isChecked} onchange="toggleTask('${storageKey}', this)" class="w-4.5 h-4.5 text-amber-600 border-slate-300 rounded-full focus:ring-amber-500 cursor-pointer">
+                        </div>
+                        <div class="flex-grow">
+                            <label for="${storageKey}" class="text-xs sm:text-sm font-bold text-slate-800 cursor-pointer ${isChecked ? 'line-through text-slate-400 font-medium' : ''}">
+                                ${task.name}
+                            </label>
+                            <p class="text-[10px] text-slate-500 mt-0.5 flex items-center gap-1.5">
+                                <span class="inline-block w-2 h-2 rounded-full ${isWorkout ? 'bg-rose-400' : 'bg-amber-400'}"></span>
+                                時段：${task.time} | 項目: 自主高規律進度
+                            </p>
+                        </div>
+                    `;
+                    subContainer.appendChild(taskDiv);
+                });
+            });
+
+            if (totalTasks === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 text-slate-400 text-sm bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
+                        <i class="fa-solid fa-mug-hot text-4xl mb-3 block text-slate-300"></i>
+                        本週您勾選的科目中，無安排任何自主複習或運動。
+                    </div>
+                `;
+            }
+        }
+
+        // Toggle storage and checkbox class
+        function toggleTask(key, checkbox) {
+            localStorage.setItem(key, checkbox.checked);
+            const parent = checkbox.closest('.flex');
+            const label = parent.querySelector('label');
+            
+            if (checkbox.checked) {
+                parent.classList.add('opacity-60', 'bg-slate-50/50');
+                label.classList.add('line-through', 'text-slate-400', 'font-medium');
+            } else {
+                parent.classList.remove('opacity-60', 'bg-slate-50/50');
+                label.classList.remove('line-through', 'text-slate-400', 'font-medium');
+            }
+        }
+    </script>
+</body>
+</html>
